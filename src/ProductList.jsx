@@ -1,25 +1,31 @@
 import React, { useState, useEffect } from 'react';
-import { useDispatch } from 'react-redux'; // <-- ADDED
-import { addItem } from './CartSlice';     // <-- ADDED
+import { useDispatch, useSelector } from 'react-redux'; // <-- Importing useSelector for cart data
+import { addItem } from './CartSlice';
 import './ProductList.css';
 import CartItem from './CartItem';
 
 function ProductList() {
   const [showCart, setShowCart] = useState(false);
   const [showPlants, setShowPlants] = useState(false);
-  
+
   // ADD THIS STATE TO TRACK ADDED PRODUCTS
   const [addedToCart, setAddedToCart] = useState({});
 
   // DISPATCH HOOK FOR ADDING ITEMS
   const dispatch = useDispatch();
 
+  // SELECTOR TO GET ALL CART ITEMS FROM REDUX
+  const cartItems = useSelector(state => state.cart.items);
+
+  // CALCULATE TOTAL QUANTITY OF ITEMS IN CART
+  const totalQuantity = cartItems.reduce((acc, item) => acc + item.quantity, 0);
+
   // HANDLE ADD TO CART FUNCTION
   const handleAddToCart = (product) => {
     dispatch(addItem(product));
     setAddedToCart((prevState) => ({
       ...prevState,
-      [product.name]: true, 
+      [product.name]: true,
     }));
   };
 
@@ -261,7 +267,7 @@ function ProductList() {
 
   const handlePlantsClick = (e) => {
     e.preventDefault();
-    setShowPlants(true); 
+    setShowPlants(true);
     setShowCart(false);
   };
 
@@ -295,7 +301,18 @@ function ProductList() {
           </div>
           <div>
             <a href="#" onClick={(e) => handleCartClick(e)} style={styleA}>
-              <h1 className="cart">
+              {/* 
+                We position totalQuantity in the absolute center 
+                of the SVG icon below 
+              */}
+              <h1
+                className="cart"
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  position: 'relative',
+                }}
+              >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
                   viewBox="0 0 256 256"
@@ -316,6 +333,23 @@ function ProductList() {
                     id="mainIconPathAttribute"
                   ></path>
                 </svg>
+                {/* 
+                  The number is absolutely positioned in the
+                  center of the cart icon.
+                */}
+                <span
+                  style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    color: 'white',
+                    fontSize: '28px',
+                    pointerEvents: 'none',
+                  }}
+                >
+                  {totalQuantity}
+                </span>
               </h1>
             </a>
           </div>
